@@ -2,6 +2,8 @@ package lila.ws
 package netty
 
 import io.netty.channel.{ EventLoopGroup, ServerChannel }
+import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.socket.nio.NioServerSocketChannel
 
 import scala.util.control.NonFatal
 
@@ -16,7 +18,18 @@ private object Pack:
   private val epollPkg: String = "io.netty.channel.epoll"
 
   def instance: Pack =
-    epoll.orElse(kqueue).getOrElse { throw RuntimeException("Can't initialize either Netty Epoll or Kqueue") }
+    List(epoll, kqueue).flatten.find(usable).getOrElse(nio)
+
+  private def usable(pack: Pack): Boolean =
+    try
+      pack.eventLoopGroupFactory(1).shutdownGracefully()
+      true
+    catch
+      case _: Throwable =>
+        false
+
+  private def nio: Pack =
+    new Pack(nThreads => new NioEventLoopGroup(nThreads), classOf[NioServerSocketChannel])
 
   private def epoll: Option[Pack] =
     try

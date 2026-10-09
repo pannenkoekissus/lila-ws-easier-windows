@@ -1,0 +1,3 @@
+-J-Xmx2g
+-Dsbt.banner=false
+-Dscala.ext.dirs=C:\Users\Gebruiker\.sbt\1.0\java9-rt-ext-eclipse_adoptium_21_0_12_1

@@ -71,6 +71,11 @@ lazy val `lila-ws` = project
       "-J-Dconfig.override_with_env_vars=true"
     ),
     Compile / doc / sources := Seq.empty,
+    Compile / unmanagedSourceDirectories ++= {
+      if System.getProperty("os.name").toLowerCase.startsWith("windows") then
+        Seq(baseDirectory.value / "app-windows")
+      else Nil
+    },
     buildInfoPackage := "lila.ws",
     buildInfoKeys := Seq[BuildInfoKey](
       BuildInfoKey.map(git.gitHeadCommit) { case (k, v) => k -> v.getOrElse("unknown") }
